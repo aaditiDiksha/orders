@@ -6,9 +6,9 @@ require("dotenv").config();
 
 const register = require("./controllers/register");
 const signin = require("./controllers/signin");
-const policySubmission = require('./controllers/policySubmission');
-const  employee  = require("./controllers/employee");
-const updateFromEmp = require('./controllers/updateFromEmp')
+const order = require('./controllers/order');
+const delivery  = require("./controllers/delivery");
+const admin = require('./controllers/admin')
 
 const db = knex({
   client: "pg",
@@ -27,29 +27,32 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 const port = 3000;
 
-app.get("/", (req, res) => res.json("policy api "));
+app.get("/", (req, res) => res.json("orders api "));
 
+// ------------------- SignIn & Register ----------------------------
 app.put("/register", (req, res) => {
   register.handleRegister(req, res, db, bcrypt);
 });
 app.post("/signin", (req, res) => {
   signin.handleSignin(req, res, db, bcrypt);
 });
-app.post('/submit/:userid/:type',(req,res)=>{
-    policySubmission.submitPolicy(req,res,db,bcrypt)
-})
-app.post('/employee/login',(req,res)=>{
-    employee.login(req,res,db)
+
+// -------------------------- PLACE ORDER --------------------------------
+app.post('/placeOrder/:customerId',(req,res)=>{
+   order.placeOrder(req,res,db,bcrypt)
 })
 
-app.post('/employee/update/:insurance_id',(req,res)=>{
-    updateFromEmp.updateTables(req,res,db)
+// ---------------------------- UPDATING STATUS --------------------------
+app.post('/updateStatus/:orderId',(req,res)=>{
+    delivery.updateStatus(req,res,db)
 })
 
-app.get('/employee/getTicketData/:insurance_id',(req,res)=>{
-    employee.getTicketData(req,res,db)
+// ------------------------------ ASSIGN DELIVERY PERSON ----------------------------- 
+app.post('/assignDelivery/:orderId/:deliveryId',(req,res)=>{
+    admin.assignDelivery(req,res,db)
 })
 
 app.listen( port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
